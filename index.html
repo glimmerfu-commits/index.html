@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ทิ้ก แทค โท้</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+
+body{
+background:#121212;
+color:#00E676;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.game{
+text-align:center;
+}
+
+h1{
+margin-bottom:15px;
+}
+
+.board{
+display:grid;
+grid-template-columns:repeat(3,100px);
+grid-template-rows:repeat(3,100px);
+gap:8px;
+margin:20px auto;
+}
+
+.cell{
+background:#1f1f1f;
+border-radius:15px;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:55px;
+cursor:pointer;
+transition:.2s;
+}
+
+.cell:hover{
+background:#333;
+}
+
+button{
+margin:5px;
+padding:12px 22px;
+font-size:16px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+background:#00c853;
+color:white;
+}
+
+button:hover{
+background:#00e676;
+}
+
+#status{
+font-size:22px;
+margin:10px;
+color:#00e676;
+}
+
+#score{
+margin-top:10px;
+font-size:18px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="game">
+
+<h1>⭕🖕 ทิค แทค โท้ 🖕❌</h1>
+
+<div>
+<button onclick="setMode('friend')">🥵💦 เล่นกับเพื่อน</button>
+<button onclick="setMode('ai')">🐔 เล่นกับ บอท(พวกกระจอก)</button>
+</div>
+
+<div id="status">เลือกโหมดก่อนเริ่มพวกโง่</div>
+
+<div class="board" id="board"></div>
+
+<div id="score">
+X : <span id="xScore">0</span>
+|
+O : <span id="oScore">0</span>
+|
+เสมอ : <span id="drawScore">0</span>
+</div>
+
+<button onclick="restart()">🔄 เริ่มใหม่(สำหรับพวกกระจอก)</button>
+
+</div>
+
+<script>
+
+const boardDiv=document.getElementById("board");
+
+let board=[];
+let current="X";
+let playing=false;
+let mode="friend";
+
+let xScore=0,oScore=0,drawScore=0;
+
+const winLines=[
+[0,1,2],[3,4,5],[6,7,8],
+[0,3,6],[1,4,7],[2,5,8],
+[0,4,8],[2,4,6]
+];
+
+function createBoard(){
+
+boardDiv.innerHTML="";
+
+board=["","","","","","","","",""];
+
+for(let i=0;i<9;i++){
+
+const cell=document.createElement("div");
+cell.className="cell";
+
+cell.onclick=()=>move(i);
+
+boardDiv.appendChild(cell);
+
+}
+
+current="X";
+playing=true;
+
+document.getElementById("status").innerHTML="ตาของ X";
+
+}
+
+function setMode(m){
+
+mode=m;
+
+createBoard();
+
+}
+
+function move(index){
+
+if(!playing)return;
+if(board[index]!="")return;
+
+board[index]=current;
+boardDiv.children[index].textContent=current;
+
+if(checkWinner()) return;
+
+current=current=="X"?"O":"X";
+
+document.getElementById("status").innerHTML="ตาของ "+current;
+
+if(mode=="ai" && current=="O"){
+
+setTimeout(aiMove,500);
+
+}
+
+}
+
+function aiMove(){
+
+let empty=[];
+
+board.forEach((v,i)=>{
+if(v=="") empty.push(i);
+});
+
+if(empty.length==0)return;
+
+let pick=empty[Math.floor(Math.random()*empty.length)];
+
+move(pick);
+
+}
+
+function checkWinner(){
+
+for(let w of winLines){
+
+let[a,b,c]=w;
+
+if(board[a]&&board[a]==board[b]&&board[a]==board[c]){
+
+playing=false;
+
+document.getElementById("status").innerHTML="🎉 "+board[a]+" ชนะแล้วไม่ได้ตึง🤣🤣";
+
+if(board[a]=="X"){
+xScore++;
+document.getElementById("xScore").textContent=xScore;
+}else{
+oScore++;
+document.getElementById("oScore").textContent=oScore;
+}
+
+return true;
+
+}
+
+}
+
+if(!board.includes("")){
+
+playing=false;
+
+drawScore++;
+document.getElementById("drawScore").textContent=drawScore;
+
+document.getElementById("status").innerHTML=" เสมอค่ะอีกโง่🤡";
+
+return true;
+
+}
+
+return false;
+
+}
+
+function restart(){
+
+createBoard();
+
+}
+
+</script>
+
+</body>
+</html>
